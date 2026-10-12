@@ -33,6 +33,7 @@
 /* Foto logo asli pemilik. Bingkai menampilkan area x=213, y=270, 320x340 tanpa mengubah gambar. */
 .brand-mark{position:relative;width:60px;height:63.75px;flex:0 0 auto;background:var(--cream);border-radius:12px;overflow:hidden}.brand-mark img{position:absolute;display:block;width:233.4375%;max-width:none;height:auto;left:-66.5625%;top:-79.411765%;mix-blend-mode:multiply}.footer-grid .brand-mark{background:var(--cream)}
 @media(max-width:620px){.brand-mark{width:48px;height:51px}.brand{gap:9px}}
+.promo-box{margin:2px 0 18px;padding:15px;border:1px dashed #b7c5ac;border-radius:12px;background:#fff}.promo-box label{display:block;font-size:.82rem;font-weight:700;margin-bottom:8px}.promo-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.promo-row input{width:100%;min-width:0;min-height:46px;border:1px solid #c9d3c3;border-radius:9px;padding:10px 12px;font-size:1rem;text-transform:uppercase}.promo-row .btn{min-height:46px;padding:10px 15px}.promo-message{min-height:20px;margin-top:7px;font-size:.75rem;line-height:1.45;color:var(--muted)}.promo-message.success{color:var(--green);font-weight:600}.promo-message.error{color:#a83520}.discount-line{color:var(--green)}@media(max-width:380px){.promo-row{grid-template-columns:1fr}.promo-row .btn{width:100%}}
 </style>
 </head>
 <body>
@@ -67,7 +68,7 @@
 <div class="field full"><label for="alamat">Alamat lengkap</label><textarea id="alamat" name="alamat" autocomplete="street-address" rows="3" maxlength="700" required placeholder="Jalan, nomor rumah, RT/RW, kelurahan, dan patokan" aria-describedby="error-alamat"></textarea><p class="field-error" id="error-alamat" aria-live="polite"></p></div>
 <div class="field"><label for="kodepos">Kode pos</label><input id="kodepos" name="kodepos" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" required placeholder="5 digit kode pos" aria-describedby="error-kodepos"><p class="field-error" id="error-kodepos" aria-live="polite"></p></div>
 <div class="field full"><label for="catatan">Catatan <span class="muted">(opsional)</span></label><textarea id="catatan" name="catatan" rows="2" maxlength="500" placeholder="Ada pesan khusus untuk kami?"></textarea></div>
-</div></form><aside class="order-summary"><div class="summary-heading"><h3>Ringkasan pesanan</h3><button id="edit-cart" class="text-btn">Ubah</button></div><p id="order-number" class="small muted"></p><div id="summary-items"></div><div id="summary-totals" aria-live="polite"></div><p class="shipping-note" id="shipping-note"></p><a class="shipping-check" id="check-jne" target="_blank" rel="noopener noreferrer">Cek tarif resmi JNE ↗</a><p class="payment-explanation">Pesanan dikirim ke WhatsApp. Admin akan mengonfirmasi stok, ongkir, dan rekening pembayaran.</p><button type="submit" form="checkout-form" class="btn btn-orange btn-full" id="wa-checkout" disabled>Kirim Pesanan via WhatsApp</button><p class="small muted checkout-hint" id="checkout-hint">Lengkapi alamat untuk melanjutkan.</p><p class="privacy-note">Data penerima hanya dimasukkan ke pesan WhatsApp saat Anda melanjutkan pesanan. Pembayaran dikonfirmasi oleh admin.</p></aside></div></dialog>
+</div></form><aside class="order-summary"><div class="summary-heading"><h3>Ringkasan pesanan</h3><button id="edit-cart" class="text-btn">Ubah</button></div><p id="order-number" class="small muted"></p><div id="summary-items"></div><div class="promo-box"><label for="promo-code">Punya kode promo?</label><div class="promo-row"><input id="promo-code" type="text" inputmode="text" autocomplete="off" maxlength="40" placeholder="Masukkan kode promo"><button id="apply-promo" type="button" class="btn btn-outline">Gunakan</button></div><p id="promo-message" class="promo-message" aria-live="polite"></p></div><div id="summary-totals" aria-live="polite"></div><p class="shipping-note" id="shipping-note"></p><a class="shipping-check" id="check-jne" target="_blank" rel="noopener noreferrer">Cek tarif resmi JNE ↗</a><p class="payment-explanation">Pesanan dikirim ke WhatsApp. Admin akan mengonfirmasi stok, ongkir, dan rekening pembayaran.</p><button type="submit" form="checkout-form" class="btn btn-orange btn-full" id="wa-checkout" disabled>Kirim Pesanan via WhatsApp</button><p class="small muted checkout-hint" id="checkout-hint">Lengkapi alamat untuk melanjutkan.</p><p class="privacy-note">Data penerima hanya dimasukkan ke pesan WhatsApp saat Anda melanjutkan pesanan. Pembayaran dikonfirmasi oleh admin.</p></aside></div></dialog>
 <section class="thankyou wrap" id="thankyou" hidden aria-labelledby="thankyou-title"><div class="success-icon"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div><div class="eyebrow">Terima kasih, teman Torto!</div><h1 id="thankyou-title" tabindex="-1">Lanjutkan konfirmasi<br>di WhatsApp</h1><p>Rincian pesanan sudah disiapkan. Tekan <strong>Kirim</strong> di WhatsApp agar admin menerima pesanan Anda, lalu tunggu konfirmasi stok, ongkir, dan rekening pembayaran.</p><div class="order-reference">Nomor order <strong id="thankyou-order"></strong><span id="thankyou-total"></span></div><a class="btn btn-orange" id="reopen-wa" target="_blank" rel="noopener noreferrer">Buka WhatsApp lagi</a><p class="small muted">Membuka WhatsApp belum berarti pesan terkirim atau pembayaran selesai.</p><button class="text-btn" id="back-to-store">Kembali belanja</button></section>
 <script>
 /* =====================================================================
@@ -101,6 +102,12 @@ const TOKO = {
 const PENGIRIMAN = {
   kurir:'JNE', kecamatanAsal:'', kodePosAsal:'',
   tautanCekTarif:'https://jne.co.id/shipping-fee'
+};
+// KODE PROMO: ubah, tambah, atau hapus kode promo di bagian ini.
+// "persen" berarti potongan persentase dari subtotal produk sebelum ongkir.
+// Kode tidak membedakan huruf besar/kecil. Contoh: nilai 15 = diskon 15%.
+const KODE_PROMO = {
+  PELETREPTIZOO: {jenis:'persen', nilai:15, label:'Diskon 15%'}
 };
 // AFFILIATE: daftarkan akun yang disetujui toko, lalu bagikan URL ?ref=kode-affiliate.
 // Contoh (hapus // dan ganti data dahulu):
@@ -918,7 +925,7 @@ $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-kateg
 renderKatalog();
 // LOGIKA INTERAKSI — biasanya tidak perlu diubah.
 const CART_KEY='torto-garden-cart-v1';
-let cart=[], detailProduct=null, detailVariant=0, detailQty=1, orderId='', sending=false;
+let cart=[], detailProduct=null, detailVariant=0, detailQty=1, orderId='', sending=false, promoAktif='';
 const touched=new Set();
 let toastTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
@@ -951,10 +958,13 @@ function totals(provinsi=$('#provinsi').value){
   const subtotal=cart.reduce((n,i)=>n+itemData(i).harga*i.qty,0);
   const gram=cart.reduce((n,i)=>n+itemData(i).berat*i.qty,0);
   const kg=cart.length?Math.max(1,Math.ceil(gram/1000)):0;
+  const promo=promoAktif&&KODE_PROMO[promoAktif]?KODE_PROMO[promoAktif]:null;
+  const diskon=promo?.jenis==='persen'?Math.min(subtotal,Math.round(subtotal*promo.nilai/100)):0;
+  const setelahDiskon=Math.max(0,subtotal-diskon);
   const alamatValid=Object.hasOwn(ZONA_PROVINSI,provinsi);
   const gratis=cart.length>0&&alamatValid&&TOKO.gratisOngkirMinimal>0&&subtotal>=TOKO.gratisOngkirMinimal;
   const ongkir=gratis?0:null;
-  return {subtotal,gram,kg,kurir:PENGIRIMAN.kurir,gratis,ongkir,total:ongkir===null?null:subtotal+ongkir};
+  return {subtotal,gram,kg,kurir:PENGIRIMAN.kurir,gratis,ongkir,promoCode:promo?promoAktif:'',promo,diskon,setelahDiskon,total:ongkir===null?null:setelahDiskon+ongkir};
 }
 function openDialog(id){
   document.querySelectorAll('dialog[open]').forEach(d=>{d.classList.remove('closing');d.close();});
@@ -1022,10 +1032,21 @@ $('#edit-cart').addEventListener('click',()=>{renderCart();openDialog('cart-dial
 function renderSummary(){
   const t=totals();
   $('#summary-items').innerHTML=cart.length?cart.map(item=>{const {p,variant,harga,berat}=itemData(item);return `<div class="summary-item"><span>${esc(p.nama)}<small>${variant?esc(variant)+' · ':''}${item.qty} × ${rupiah(harga)} · ${berat} g/kemasan</small></span><strong>${rupiah(item.qty*harga)}</strong></div>`;}).join(''):'<p class="small muted">Keranjang Anda kosong.</p>';
-  $('#summary-totals').innerHTML=`<div class="money-line"><span>Subtotal produk</span><strong>${rupiah(t.subtotal)}</strong></div><div class="money-line"><span>Total berat</span><strong>${new Intl.NumberFormat('id-ID').format(t.gram)} g</strong></div><div class="money-line"><span>Perkiraan berat kirim</span><strong>${t.kg} kg</strong></div><div class="money-line"><span>Ongkir JNE</span><strong>${t.gratis?'Gratis dari toko':'Menunggu konfirmasi'}</strong></div>${t.gratis?'<p class="small muted">Pesanan memenuhi minimum gratis ongkir dari toko.</p>':'<p class="small muted">Subtotal belum termasuk ongkir. Tarif JNE dihitung sesuai tujuan dan berat paket.</p>'}<div class="total-line"><span>TOTAL BAYAR</span><strong>${t.total===null?'Menunggu ongkir':rupiah(t.total)}</strong></div>`;
+  $('#summary-totals').innerHTML=`<div class="money-line"><span>Subtotal produk</span><strong>${rupiah(t.subtotal)}</strong></div>${t.diskon?`<div class="money-line discount-line"><span>Diskon promo (${esc(t.promoCode)} · ${t.promo.nilai}%)</span><strong>−${rupiah(t.diskon)}</strong></div><div class="money-line"><span>Subtotal setelah diskon</span><strong>${rupiah(t.setelahDiskon)}</strong></div>`:''}<div class="money-line"><span>Total berat</span><strong>${new Intl.NumberFormat('id-ID').format(t.gram)} g</strong></div><div class="money-line"><span>Perkiraan berat kirim</span><strong>${t.kg} kg</strong></div><div class="money-line"><span>Ongkir JNE</span><strong>${t.gratis?'Gratis dari toko':'Menunggu konfirmasi'}</strong></div>${t.gratis?'<p class="small muted">Pesanan memenuhi minimum gratis ongkir dari toko.</p>':`<p class="small muted">${t.diskon?'Subtotal setelah diskon':'Subtotal'} belum termasuk ongkir. Tarif JNE dihitung sesuai tujuan dan berat paket.</p>`}<div class="total-line"><span>TOTAL BAYAR</span><strong>${t.total===null?'Menunggu ongkir':rupiah(t.total)}</strong></div>`;
   $('#shipping-note').textContent=`Dikirim dari ${TOKO.kotaAsal} menggunakan JNE. Admin mengecek tarif dan total akhir sebelum pembayaran. Berat akhir mengikuti hasil penimbangan dan ukuran paket.`;
   $('#check-jne').href=PENGIRIMAN.tautanCekTarif;
 }
+function normalizePromo(value){return String(value||'').trim().toUpperCase();}
+function applyPromo(){
+  const code=normalizePromo($('#promo-code').value),message=$('#promo-message');
+  message.classList.remove('success','error');
+  if(!code){promoAktif='';message.textContent='Masukkan kode promo terlebih dahulu.';message.classList.add('error');renderSummary();return false;}
+  if(!Object.hasOwn(KODE_PROMO,code)){promoAktif='';message.textContent='Kode promo tidak ditemukan.';message.classList.add('error');renderSummary();return false;}
+  promoAktif=code;$('#promo-code').value=code;message.textContent=`Kode ${code} berhasil digunakan — ${KODE_PROMO[code].label}.`;message.classList.add('success');renderSummary();return true;
+}
+$('#apply-promo').addEventListener('click',applyPromo);
+$('#promo-code').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyPromo();}});
+$('#promo-code').addEventListener('input',()=>{if(promoAktif&&normalizePromo($('#promo-code').value)!==promoAktif){promoAktif='';$('#promo-message').textContent='Tekan Gunakan untuk menerapkan kode promo.';$('#promo-message').classList.remove('success','error');renderSummary();}});
 const fieldNames=['nama','telepon','provinsi','kota','kecamatan','alamat','kodepos'];
 function formData(){return Object.fromEntries([...fieldNames,'catatan'].map(k=>[k,$('#'+k).value.trim()]));}
 function fieldError(name,value){
@@ -1049,18 +1070,19 @@ $('#checkout-form').addEventListener('change',e=>{if(fieldNames.includes(e.targe
 function buildMessage(data,t,id){
   const lines=cart.map((item,i)=>{const {p,variant,harga}=itemData(item);return `${i+1}. ${p.nama}${variant?' ('+variant+')':''} x${item.qty} = ${rupiah(harga*item.qty)}`;});
   const affiliate=activeAffiliate();
-  return `Halo ${TOKO.nama}, saya ingin memesan:\nNo. Order: ${id}\n\n${lines.join('\n')}\n\nSubtotal produk: ${rupiah(t.subtotal)}\nPengiriman: JNE dari ${TOKO.kotaAsal}\nTotal berat produk: ${t.gram} gram (perkiraan ${t.kg} kg)\nOngkir JNE: ${t.gratis?'Gratis dari toko':'Mohon dicek admin sesuai alamat tujuan'}\n*TOTAL BAYAR: ${t.total===null?'Menunggu konfirmasi ongkir JNE':rupiah(t.total)}*\n\nData pengiriman:\nNama: ${data.nama}\nNo. HP: ${data.telepon}\nAlamat: ${data.alamat}, Kec. ${data.kecamatan}, Kota/Kab. ${data.kota}, Prov. ${data.provinsi}, Kode pos ${data.kodepos}\nCatatan: ${data.catatan||'-'}${affiliate?'\nReferensi affiliate: '+affiliate.nama+' ('+affiliate.kode+')':''}\n\nMohon konfirmasi stok, ongkir JNE, total akhir, dan nomor rekening untuk pembayaran. Terima kasih.`;
+  const promoLines=t.diskon?`\nKode promo: ${t.promoCode}\nDiskon promo (${t.promo.nilai}%): −${rupiah(t.diskon)}\nSubtotal setelah diskon: ${rupiah(t.setelahDiskon)}`:'';
+  return `Halo ${TOKO.nama}, saya ingin memesan:\nNo. Order: ${id}\n\n${lines.join('\n')}\n\nSubtotal produk: ${rupiah(t.subtotal)}${promoLines}\nPengiriman: JNE dari ${TOKO.kotaAsal}\nTotal berat produk: ${t.gram} gram (perkiraan ${t.kg} kg)\nOngkir JNE: ${t.gratis?'Gratis dari toko':'Mohon dicek admin sesuai alamat tujuan'}\n*TOTAL BAYAR: ${t.total===null?'Menunggu konfirmasi ongkir JNE':rupiah(t.total)}*\n\nData pengiriman:\nNama: ${data.nama}\nNo. HP: ${data.telepon}\nAlamat: ${data.alamat}, Kec. ${data.kecamatan}, Kota/Kab. ${data.kota}, Prov. ${data.provinsi}, Kode pos ${data.kodepos}\nCatatan: ${data.catatan||'-'}${affiliate?'\nReferensi affiliate: '+affiliate.nama+' ('+affiliate.kode+')':''}\n\nMohon konfirmasi stok, ongkir JNE, total akhir, dan nomor rekening untuk pembayaran. Terima kasih.`;
 }
 $('#checkout-form').addEventListener('submit',e=>{
   e.preventDefault();if(sending)return;
   if(!validateForm(true)||!cart.length){$('#checkout-form [aria-invalid="true"]')?.focus();return;}
   const t=totals();sending=true;
   orderId=orderId||makeOrderId();const message=buildMessage(formData(),t,orderId);const url=`https://wa.me/${TOKO.whatsapp}?text=${encodeURIComponent(message)}`;
-  $('#reopen-wa').href=url;$('#thankyou-order').textContent=orderId;$('#thankyou-total').textContent=t.total===null?'Subtotal produk: '+rupiah(t.subtotal)+' · ongkir JNE menunggu konfirmasi':'Total: '+rupiah(t.total);
+  $('#reopen-wa').href=url;$('#thankyou-order').textContent=orderId;$('#thankyou-total').textContent=t.total===null?(t.diskon?'Subtotal setelah diskon: '+rupiah(t.setelahDiskon)+' · promo '+t.promoCode+' · ongkir JNE menunggu konfirmasi':'Subtotal produk: '+rupiah(t.subtotal)+' · ongkir JNE menunggu konfirmasi'):'Total: '+rupiah(t.total);
   // Dibuka langsung dari klik pengguna supaya tidak dianggap popup otomatis.
   try{window.open(url,'_blank','noopener,noreferrer');}catch{/* Tombol ulang tetap tersedia. */}
   $('#checkout-dialog').close();document.body.classList.remove('modal-open');$('#storefront').hidden=true;$('#thankyou').hidden=false;
-  cart=[];persistCart();$('#checkout-form').reset();touched.clear();sending=false;orderId='';validateForm();window.scrollTo({top:0,behavior:'instant'});$('#thankyou-title').focus({preventScroll:true});
+  cart=[];promoAktif='';$('#promo-code').value='';$('#promo-message').textContent='';$('#promo-message').classList.remove('success','error');persistCart();$('#checkout-form').reset();touched.clear();sending=false;orderId='';validateForm();window.scrollTo({top:0,behavior:'instant'});$('#thankyou-title').focus({preventScroll:true});
 });
 function returnToStore(){$('#storefront').hidden=false;$('#thankyou').hidden=true;}
 $('#back-to-store').addEventListener('click',()=>{returnToStore();$('#produk').scrollIntoView();});

@@ -127,7 +127,8 @@ const KODE_PROMO = {
 // 'kode-affiliate': {nama:'Nama Affiliate', instagram:'https://www.instagram.com/akun/', tiktok:'https://www.tiktok.com/@akun'},
 // Jangan masukkan password atau API key. Pengunjung hanya diarahkan ke akun di daftar ini.
 const AFFILIATE = {
-  'tobiko_tarako': {nama:'@tobiko_tarako',instagram:'',tiktok:'https://www.tiktok.com/@tobiko_tarako'}
+  'tobiko_tarako': {nama:'@tobiko_tarako',instagram:'',tiktok:'https://www.tiktok.com/@tobiko_tarako'},
+  'bumiturtoise': {nama:'bumiturtoise',instagram:'',tiktok:''}
 };
 // Masa atribusi link affiliate. Jika pembeli kembali dalam 30 hari, affiliate tetap tercatat.
 const AFFILIATE_KEY='torto-garden-affiliate-v1', AFFILIATE_DAYS=30;
@@ -906,7 +907,7 @@ function activeAffiliate(search=window.location?.search||''){
   const data=AFFILIATE[refs[0]];
   if(!data||typeof data.nama!=='string'||!data.nama.trim())return null;
   const instagram=affiliateProfile(data.instagram,'instagram'),tiktok=affiliateProfile(data.tiktok,'tiktok');
-  return instagram||tiktok?{kode:refs[0],nama:data.nama.trim(),instagram,tiktok}:null;
+  return {kode:refs[0],nama:data.nama.trim(),instagram,tiktok};
 }
 function rememberAffiliate(search=window.location?.search||''){
   const affiliate=activeAffiliate(search);
@@ -934,12 +935,14 @@ function orderAffiliate(){
 }
 function consultationMarkup(affiliate){
   if(!affiliate)return '<p>Untuk konsultasi pilihan produk, buka profil Instagram atau TikTok penghobi yang membagikan tautan ini kepada Anda.</p><p class="small muted">Akun pengarah belum tersedia pada tautan ini. Minta tautan khusus affiliate agar tombol profilnya muncul di sini.</p>';
-  return `<p>Anda datang melalui <strong>${esc(affiliate.nama)}</strong>. Pilih profil berikut untuk melanjutkan konsultasi.</p><div class="consult-links">${[['instagram','Instagram'],['tiktok','TikTok']].filter(([key])=>affiliate[key]).map(([key,label])=>`<a class="btn btn-green" href="${esc(affiliate[key])}" target="_blank" rel="noopener noreferrer">Buka ${label} ${esc(affiliate.nama)} ↗</a>`).join('')}</div><p class="small muted">Saat menghubungi, sertakan jenis kura, ukuran/umur, serta produk yang ingin ditanyakan. Pembayaran dan konfirmasi pesanan tetap melalui admin Torto Garden.</p>`;
+  const links=[['instagram','Instagram'],['tiktok','TikTok']].filter(([key])=>affiliate[key]).map(([key,label])=>`<a class="btn btn-green" href="${esc(affiliate[key])}" target="_blank" rel="noopener noreferrer">Buka ${label} ${esc(affiliate.nama)} ↗</a>`).join('');
+  if(!links)return `<p>Anda datang melalui <strong>${esc(affiliate.nama)}</strong>. Referensi affiliate sudah tersimpan dan akan ikut tercantum saat checkout.</p><p class="small muted">Akun konsultasi affiliate ini belum didaftarkan. Pesanan dan pembayaran tetap dikonfirmasi oleh admin Torto Garden melalui WhatsApp.</p>`;
+  return `<p>Anda datang melalui <strong>${esc(affiliate.nama)}</strong>. Pilih profil berikut untuk melanjutkan konsultasi.</p><div class="consult-links">${links}</div><p class="small muted">Saat menghubungi, sertakan jenis kura, ukuran/umur, serta produk yang ingin ditanyakan. Pembayaran dan konfirmasi pesanan tetap melalui admin Torto Garden.</p>`;
 }
 function renderConsultation(){
   const affiliate=currentAffiliate();
   $('#consult-content').innerHTML=consultationMarkup(affiliate);
-  $('#consult-intro').textContent=affiliate?'Konsultasi pilihan produk bersama '+affiliate.nama+' melalui Instagram atau TikTok.':'Konsultasikan pilihan produk dengan affiliate yang membagikan tautan ini melalui Instagram atau TikTok.';
+  $('#consult-intro').textContent=affiliate?(affiliate.instagram||affiliate.tiktok?'Konsultasi pilihan produk bersama '+affiliate.nama+' melalui Instagram atau TikTok.':'Tautan affiliate '+affiliate.nama+' aktif untuk pesanan Anda.'):'Konsultasikan pilihan produk dengan affiliate yang membagikan tautan ini melalui Instagram atau TikTok.';
 }
 function fotoURL(src){
   if(!src.startsWith('contoh:')) return src;
